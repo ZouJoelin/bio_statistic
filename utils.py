@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 import copy
 import math
 
@@ -12,9 +13,9 @@ def load_data(file):
 
 def load_data_multi(file):
     data = np.loadtxt(file, delimiter='\t',
-                      skiprows=1, usecols=(1, 2, 3, 4, 5, 6, 7))
-    X = data[:, :6]
-    y = data[:, 6]
+                      skiprows=1, usecols=(1, 2, 3, 4, 5, 6, 7, 8))
+    X = data[:, :7]
+    y = data[:, 7]
     return X, y
 
 
@@ -154,9 +155,48 @@ def gradient_descent(X, y, w_in, b_in, alpha, num_iters, lambda_=0, verbose=True
             J_history.append(compute_cost_matrix(X, y, w, b, lambda_))
 
         # Print cost every at intervals 10 times or as many iterations if < 10
-        if i % math.ceil(num_iters / 10) == 0:
+        if i % math.ceil(num_iters / 20) == 0:
             if verbose:
                 print(f"Iteration {i:4d}: Cost {J_history[-1]}   ")
 
     # return final w,b and J history for graphing
     return w.reshape(w_in.shape), b, J_history
+
+
+def soup_bowl():
+
+    fig = plt.figure(figsize=(8, 8))
+
+    # Plot configuration
+    ax = fig.add_subplot(111, projection='3d')
+    ax.xaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
+    ax.yaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
+    ax.zaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
+    ax.zaxis.set_rotate_label(False)
+    ax.view_init(45, -120)
+
+    # Useful linearspaces to give values to the parameters w and b
+    w = np.linspace(-20, 20, 100)
+    b = np.linspace(-20, 20, 100)
+
+    # Get the z value for a bowl-shaped cost function
+    z = np.zeros((len(w), len(b)))
+    j = 0
+    for x in w:
+        i = 0
+        for y in b:
+            z[i, j] = x**2 + y**2
+            i += 1
+        j += 1
+
+    # Meshgrid used for plotting 3D functions
+    W, B = np.meshgrid(w, b)
+
+    # Create the 3D surface plot of the bowl-shaped cost function
+    ax.plot_surface(W, B, z, cmap="Spectral_r", alpha=0.7, antialiased=False)
+    ax.plot_wireframe(W, B, z, color='k', alpha=0.1)
+    ax.set_xlabel("$w$")
+    ax.set_ylabel("$b$")
+    ax.set_zlabel("$J(w,b)$", rotation=90)
+    ax.set_title("$J(w,b)$\n [You can rotate this figure]", size=15)
+    plt.show()
